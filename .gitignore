@@ -8,7 +8,7 @@ __pycache__/
 *$py.class
 migrations
 .coverage
-
+studies
 
 # C extensions
 *.so
