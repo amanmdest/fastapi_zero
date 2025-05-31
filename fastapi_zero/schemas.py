@@ -22,7 +22,6 @@ class UserList(BaseModel):
     users: list[UserPublic]
 
 
-# class UserUpdate(BaseModel):
-#     username: str | None
-#     email: EmailStr | None
-#     password: str | None
+class Token(BaseModel):
+    access_token: str
+    token_type: str

@@ -1,6 +1,16 @@
 from http import HTTPStatus
 
+import jwt
+import pytest
+from fastapi import HTTPException
+
 from fastapi_zero.schemas import UserPublic
+from fastapi_zero.security import (
+    ALGORITHM,
+    SECRET_KEY,
+    create_access_token,
+    get_current_user,
+)
 
 
 def test_read_root_hello_world(client):
@@ -76,16 +86,11 @@ def test_create_user_email_already_exists(client, user):
     }
 
 
-def test_read_users(client):
-    response = client.get('/users/')
-
-    assert response.status_code == HTTPStatus.OK
-    assert response.json() == {'users': []}
-
-
-def test_read_users_with_user(client, user):
-    response = client.get('/users/')
+def test_list_users(client, user, token):
     user_schema = UserPublic.model_validate(user).model_dump()
+    response = client.get(
+        '/users/', headers={'Authorization': f'Bearer {token}'}
+    )
 
     assert response.status_code == HTTPStatus.OK
     assert response.json() == {'users': [user_schema]}
@@ -111,7 +116,7 @@ def test_read_user_with_id_returns_not_found(client):
     }
 
 
-def test_update_user(client, user):
+def test_update_user(client, user, token):
     response = client.put(
         f'/users/{user.id}',
         json={
@@ -119,6 +124,7 @@ def test_update_user(client, user):
             'email': 'bob@example.com',
             'password': user.password,
         },
+        headers={'Authorization': f'Bearer {token}'},
     )
 
     assert response.status_code == HTTPStatus.OK
@@ -129,7 +135,7 @@ def test_update_user(client, user):
     }
 
 
-def test_update_returns_not_found(client):
+def test_update_returns_not_enough_permissions(client, token):
     response = client.put(
         '/users/4',
         json={
@@ -137,13 +143,14 @@ def test_update_returns_not_found(client):
             'email': 'bob@example.com',
             'password': 'secret',
         },
+        headers={'Authorization': f'Bearer {token}'},
     )
 
-    assert response.status_code == HTTPStatus.NOT_FOUND
-    assert response.json() == {'detail': 'User not found!'}
+    assert response.status_code == HTTPStatus.FORBIDDEN
+    assert response.json() == {'detail': 'Not enough permissions'}
 
 
-def test_update_integrity_error(client, user):
+def test_update_integrity_error(client, user, token):
     client.post(
         '/users',
         json={
@@ -160,23 +167,73 @@ def test_update_integrity_error(client, user):
             'email': 'bob@example.com',
             'password': 'mynewpassword',
         },
+        headers={'Authorization': f'Bearer {token}'},
     )
 
     assert response.status_code == HTTPStatus.CONFLICT
-    assert response.json() == {
-        'detail': 'Username or Email already exists'
-    }
+    assert response.json() == {'detail': 'Username or Email already exists'}
 
 
-def test_delete_user(client, user):
-    response = client.delete('/users/1')
+def test_delete_user(client, user, token):
+    response = client.delete(
+        '/users/1', headers={'Authorization': f'Bearer {token}'}
+    )
 
     assert response.status_code == HTTPStatus.OK
     assert response.json() == {'message': 'User deleted!'}
 
 
-def test_delete_returns_not_found(client):
-    response = client.delete('/users/3')
+def test_delete_returns_not_enough_permissions(client, token):
+    response = client.delete(
+        '/users/3', headers={'Authorization': f'Bearer {token}'}
+    )
 
-    assert response.status_code == HTTPStatus.NOT_FOUND
-    assert response.json() == {'detail': 'User not found!'}
+    assert response.status_code == HTTPStatus.FORBIDDEN
+    assert response.json() == {'detail': 'Not enough permissions'}
+
+
+def test_get_token(client, user):
+    response = client.post(
+        '/token',
+        data={
+            'username': user.email,
+            'password': user.clean_password,
+        },
+    )
+
+    token = response.json()
+
+    assert response.status_code == HTTPStatus.OK
+    assert 'access_token' in token
+
+
+def test_jwt_invalid_token(client):
+    response = client.delete(
+        'users/1', headers={'Authorization': 'Bearer invalid-token'}
+    )
+
+    assert response.status_code == HTTPStatus.UNAUTHORIZED
+    assert response.json() == {'detail': 'Could not validate credentials'}
+
+
+def test_jwt_without_sub(session):
+    token = create_access_token(data={'test': 'test'})
+    with pytest.raises(HTTPException) as excinfo:
+        get_current_user(session=session, token=token)
+
+    assert excinfo.value.status_code == HTTPStatus.UNAUTHORIZED
+    assert excinfo.value.detail == 'Could not validate credentials'
+
+
+def test_jwt_user_not_found_in_db(session):
+    token = jwt.encode(
+        {'sub': 'milk@shake.com'},
+        SECRET_KEY,
+        algorithm=ALGORITHM,
+    )
+
+    with pytest.raises(HTTPException) as excinfo:
+        get_current_user(session=session, token=token)
+
+    assert excinfo.value.status_code == HTTPStatus.UNAUTHORIZED
+    assert excinfo.value.detail == 'Could not validate credentials'
