@@ -2,6 +2,7 @@ from http import HTTPStatus
 
 import jwt
 import pytest
+import pytest_asyncio
 from fastapi import HTTPException
 from jwt import decode
 
@@ -30,16 +31,18 @@ def test_jwt_invalid_token(client):
     assert response.json() == {'detail': 'Could not validate credentials'}
 
 
-def test_jwt_without_sub(session):
+@pytest_asyncio.is_async_test
+async def test_jwt_without_sub(session):
     token = create_access_token(data={'test': 'test'})
     with pytest.raises(HTTPException) as excinfo:
-        get_current_user(session=session, token=token)
+        await get_current_user(session=session, token=token)
 
     assert excinfo.value.status_code == HTTPStatus.UNAUTHORIZED
     assert excinfo.value.detail == 'Could not validate credentials'
 
 
-def test_jwt_user_not_found_in_db(session, settings):
+@pytest_asyncio.is_async_test
+async def test_jwt_user_not_found_in_db(session, settings):
     token = jwt.encode(
         {'sub': 'milk@shake.com'},
         settings.SECRET_KEY,
@@ -47,7 +50,7 @@ def test_jwt_user_not_found_in_db(session, settings):
     )
 
     with pytest.raises(HTTPException) as excinfo:
-        get_current_user(session=session, token=token)
+        await get_current_user(session=session, token=token)
 
     assert excinfo.value.status_code == HTTPStatus.UNAUTHORIZED
     assert excinfo.value.detail == 'Could not validate credentials'
