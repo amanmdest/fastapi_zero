@@ -10,9 +10,10 @@ from sqlalchemy.pool import StaticPool
 
 from fastapi_zero.app import app
 from fastapi_zero.database import get_session
-from fastapi_zero.models import User, table_registry
+from fastapi_zero.models import table_registry
 from fastapi_zero.security import get_password_hash
 from fastapi_zero.settings import Settings
+from tests.factories import UserFactory
 
 
 @pytest.fixture
@@ -68,11 +69,22 @@ def mock_db_time():
 async def user(session: AsyncSession):
     password = 'testtest'
 
-    user = User(
-        username='Teste',
-        email='teste@test.com',
-        password=get_password_hash(password),
-    )
+    user = UserFactory(password=get_password_hash(password))
+
+    session.add(user)
+    await session.commit()
+    await session.refresh(user)
+
+    user.clean_password = password
+
+    return user
+
+
+@pytest_asyncio.fixture
+async def other_user(session: AsyncSession):
+    password = 'testtest'
+
+    user = UserFactory(password=get_password_hash(password))
 
     session.add(user)
     await session.commit()
