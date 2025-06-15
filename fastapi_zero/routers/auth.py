@@ -28,7 +28,13 @@ async def login_for_access_token(session: T_Session, form_data: T_OAuth2Form):
         select(User).where(User.email == form_data.username)
     )
 
-    if not user or not verify_password(form_data.password, user.password):
+    if not user:
+        raise HTTPException(
+            status_code=HTTPStatus.UNAUTHORIZED,
+            detail='Incorrect email or password',
+        )
+
+    if not verify_password(form_data.password, user.password):
         raise HTTPException(
             status_code=HTTPStatus.UNAUTHORIZED,
             detail='Incorrect email or password',
