@@ -2,6 +2,8 @@ import factory.fuzzy
 
 from fastapi_zero.models import Todo, TodoState, User
 
+# from tests.conftest import mock_db_time, session
+
 
 class UserFactory(factory.Factory):
     class Meta:

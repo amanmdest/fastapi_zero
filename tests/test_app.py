@@ -5,7 +5,7 @@ def test_read_root_hello_world(client):
     response = client.get('/')
 
     assert response.status_code == HTTPStatus.OK
-    assert response.json() == {'message': 'Olá Sub-Mundo!'}
+    assert response.json() == {'message': 'Olá Mundo!'}
 
 
 def test_read_root_hello_world_html(client):

@@ -11,6 +11,7 @@ from sqlalchemy.pool import StaticPool
 from fastapi_zero.app import app
 from fastapi_zero.database import get_session
 from fastapi_zero.models import Todo, table_registry
+from fastapi_zero.schemas import UserPublic
 from fastapi_zero.security import get_password_hash
 from fastapi_zero.settings import Settings
 from tests.factories import UserFactory
@@ -91,6 +92,7 @@ async def user(session):
     await session.refresh(user)
 
     user.clean_password = password
+    user.schema = UserPublic.model_validate(user).model_dump()
 
     return user
 

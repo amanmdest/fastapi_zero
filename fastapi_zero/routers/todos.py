@@ -70,7 +70,7 @@ async def list_todos(
 @router.patch(
     '/{todo_id}', status_code=HTTPStatus.OK, response_model=TodoPublic
 )
-async def patch_todos(
+async def patch_todo(
     session: T_Session, user: T_CurrentUser, todo: TodoUpdate, todo_id: int
 ):
     db_todo = await session.scalar(
@@ -92,10 +92,8 @@ async def patch_todos(
     return db_todo
 
 
-@router.delete(
-        '/{todo_id}', response_model=Message
-)
-async def delete_todos(session: T_Session, user: T_CurrentUser, todo_id: int):
+@router.delete('/{todo_id}', response_model=Message)
+async def delete_todo(session: T_Session, user: T_CurrentUser, todo_id: int):
     db_todo = await session.scalar(
         select(Todo).where(Todo.user_id == user.id, Todo.id == todo_id)
     )

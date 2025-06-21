@@ -1,3 +1,5 @@
+from datetime import datetime
+
 from pydantic import BaseModel, ConfigDict, EmailStr, Field
 
 from fastapi_zero.models import TodoState
@@ -17,6 +19,8 @@ class UserPublic(BaseModel):
     id: int
     username: str
     email: EmailStr
+    created_at: datetime
+    updated_at: datetime
     model_config = ConfigDict(from_attributes=True)
 
 
@@ -32,6 +36,8 @@ class TodoSchema(BaseModel):
 
 class TodoPublic(TodoSchema):
     id: int
+    created_at: datetime
+    updated_at: datetime
 
 
 class TodoList(BaseModel):
@@ -55,6 +61,6 @@ class FilterPage(BaseModel):
 
 
 class FilterTodo(FilterPage):
-    title: str | None = None
+    title: str | None = Field(default=None, min_length=3, max_length=20)
     description: str | None = None
     state: TodoState | None = None
