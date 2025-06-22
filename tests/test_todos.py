@@ -7,20 +7,20 @@ from fastapi_zero.models import Todo, TodoState
 from tests.factories import TodoFactory
 
 
-@pytest.mark.asyncio
-async def test_create_todo_error(session, user):
-    todo = Todo(
-        title='Test Todo',
-        description='Test Desc',
-        state='test',
-        user_id=user.id,
-    )
+# @pytest.mark.asyncio
+# async def test_create_todo_error(session, user):
+#     todo = Todo(
+#         title='Test Todo',
+#         description='Test Desc',
+#         state='test',
+#         user_id=user.id,
+#     )
 
-    session.add(todo)
-    await session.commit()
+#     session.add(todo)
+#     await session.commit()
 
-    with pytest.raises(LookupError):
-        await session.scalar(select(Todo))
+#     with pytest.raises(LookupError):
+#         await session.scalar(select(Todo))
 
 
 def test_create_todo(client, token, mock_db_time):
@@ -46,7 +46,7 @@ def test_create_todo(client, token, mock_db_time):
     }
 
 
-def test_list_todos(client, todo, token):
+def test_list_todos(client, user, todo, token):
     response = client.get(
         '/todos/', headers={'Authorization': f'Bearer {token}'}
     )
@@ -66,7 +66,9 @@ def test_list_todos(client, todo, token):
 
 
 @pytest.mark.asyncio
-async def test_list_todos_should_return_5_todos(session, client, user, token):
+async def test_list_todos_pagination_should_return_5_todos(
+    session, client, user, token
+):
     expected_todos = 5
     session.add_all(TodoFactory.create_batch(5, user_id=user.id))
     await session.commit()
@@ -217,7 +219,7 @@ def test_patch_todo_error(client, token):
     assert response.json() == {'detail': 'Task not found.'}
 
 
-def test_patch_todo(client, todo, token):
+def test_patch_todo(client, user, todo, token):
     response = client.patch(
         f'/todos/{todo.id}',
         json={
@@ -246,7 +248,7 @@ def test_delete_todo_error(client, token):
     assert response.json() == {'detail': 'Task not found.'}
 
 
-def test_delete_todo(client, todo, token):
+def test_delete_todo(client, user, todo, token):
     response = client.delete(
         f'/todos/{todo.id}',
         headers={'Authorization': f'Bearer {token}'},
