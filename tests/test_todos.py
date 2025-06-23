@@ -1,11 +1,9 @@
 from http import HTTPStatus
 
 import pytest
-from sqlalchemy import select
 
 from fastapi_zero.models import Todo, TodoState
 from tests.factories import TodoFactory
-
 
 # @pytest.mark.asyncio
 # async def test_create_todo_error(session, user):
