@@ -71,7 +71,7 @@ def test_token_expired_after_time(client, user):
 
 def test_refresh_access_token(client, user, token):
     response = client.post(
-        '/auth/refresh_token', headers={'Authorization': f'Bearer {token}'}
+        '/auth/refresh', headers={'Authorization': f'Bearer {token}'}
     )
 
     data = response.json()
@@ -94,7 +94,7 @@ def test_token_expired_doesnt_refresh(client, user):
 
     with freeze_time('2025-12-31 12:31:00'):
         response = client.post(
-            '/auth/refresh_token', headers={'Authorization': f'Bearer {token}'}
+            '/auth/refresh', headers={'Authorization': f'Bearer {token}'}
         )
 
         assert response.status_code == HTTPStatus.UNAUTHORIZED
