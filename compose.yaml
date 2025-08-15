@@ -1,5 +1,5 @@
 services:
-  fastzero_database:
+  fastasync_database:
     image: postgres
     volumes:
       - pgdata:/var/lib/postgresql/data
@@ -10,16 +10,16 @@ services:
     ports:
       - "5432:5432"
 
-  fastzero_app:
-    image: fastzero_app
+  fastasync_app:
+    image: fastasync_app
     entrypoint: ./entrypoint.sh
     build: .
     ports:
       - "8000:8000"
     depends_on:
-      - fastzero_database
+      - fastasync_database
     environment:
-      DATABASE_URL: postgresql+psycopg://app_user:app_password@fastzero_database:5432/app_db
+      DATABASE_URL: postgresql+psycopg://app_user:app_password@fastasync_database:5432/app_db
 
 volumes:
   pgdata:
