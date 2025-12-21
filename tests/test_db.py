@@ -58,7 +58,7 @@ async def test_create_todo(session, mock_db_time, user):
 
 
 @pytest.mark.asyncio
-async def test_user_todo_realationship(session, user, todo):
+async def test_user_todo_relationship(session, user, todo):
     await session.refresh(user)
     user = await session.scalar(select(User).where(User.id == user.id))
 

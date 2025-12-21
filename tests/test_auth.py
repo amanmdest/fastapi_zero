@@ -35,7 +35,7 @@ def test_get_token_wrong_password(client, user):
     response = client.post(
         '/auth/token',
         data={
-            'username': user.username,
+            'username': user.email,
             'password': 'abracadabra',
         },
     )

@@ -60,6 +60,7 @@ async def get_current_user(
             token, settings.SECRET_KEY, algorithms=settings.ALGORITHM
         )
         subject_email = payload.get('sub')
+
         if not subject_email:
             raise credentials_exception
 
