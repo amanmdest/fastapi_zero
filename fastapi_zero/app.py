@@ -8,7 +8,7 @@ from fastapi_zero.schemas import (
     Message,
 )
 
-app = FastAPI(title='Bala')
+app = FastAPI(title='FastAPI Zero')
 
 app.include_router(auth.router)
 app.include_router(users.router)
