@@ -8,8 +8,8 @@
 <img alt="GitHub last commit" src="https://img.shields.io/github/last-commit/amanmdest/fastapi_zero?color=orange">
 </div>
 <br>
-<p align='center'>>>> <q>O simples bem feito!</q> <<<</p>
-<p align='center'>API desenvolvida no curso <a href="https://fastapidozero.dunossauro.com/">FastAPI do Zero</a> do mestrão @Dunossauro, presença importante na comunidade python.</p>
+<p align='center'><q>O simples bem feito!</q></p>
+<p align='center'>>>> API desenvolvida no curso <a href="https://fastapidozero.dunossauro.com/">FastAPI do Zero</a> do mestrão @Dunossauro, presença importante na comunidade python. <<<</p>
 
 ## Projetos Relacionados
 #### [Fast Zero](https://github.com/amanmdest/fast_zero_sync) - Versão síncrona do projeto.
@@ -90,4 +90,5 @@ e acesse: http://127.0.0.1:8000/docs
   <img src="https://github.com/amanmdest/fastapi_zero/blob/main/images/fastapi_zero_endpoints.png" alt="fastapi_zero_endpoints" />
   <p>Documentação Swagger - Endpoints Rotas da Api</p>
 </div>
+
 
